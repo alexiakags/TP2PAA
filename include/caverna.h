@@ -33,3 +33,4 @@ void imprimirCaverna(Caverna *caverna);
 void resolverCaverna(Caverna *caverna, const char* arquivo_saida);
 ProgramacaoDinamica* inicializarDp(Caverna *caverna);
 int max(int a, int b);
+void liberarDp(ProgramacaoDinamica *pd, int linhas);

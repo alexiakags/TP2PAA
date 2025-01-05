@@ -97,22 +97,20 @@ void imprimirCaverna(Caverna *caverna) {
 }
 
 
-// Inicializar as matrizes dp e parent
+// Inicializar estrutura de programação dinâmica
 ProgramacaoDinamica* inicializarDp(Caverna *caverna) {
     ProgramacaoDinamica *pd = (ProgramacaoDinamica*)malloc(sizeof(ProgramacaoDinamica));
-    if (!pd) {
-        perror("Erro ao alocar memória para programação dinâmica");
-        return NULL;
-    }
-
-    pd->dp = (int**)malloc(caverna->linhas * sizeof(int*));
+    pd->dp = alocarMatriz(caverna->linhas, caverna->colunas);
     pd->parent = (Coordenada**)malloc(caverna->linhas * sizeof(Coordenada*));
     for (int i = 0; i < caverna->linhas; i++) {
-        pd->dp[i] = (int*)malloc(caverna->colunas * sizeof(int));
         pd->parent[i] = (Coordenada*)malloc(caverna->colunas * sizeof(Coordenada));
+    }
+
+    // Inicializar as matrizes
+    for (int i = 0; i < caverna->linhas; i++) {
         for (int j = 0; j < caverna->colunas; j++) {
-            pd->dp[i][j] = INT_MIN; // Inicializar como valor mínimo
-            pd->parent[i][j].x = -1;
+            pd->dp[i][j] = INT_MIN; // Valor inicial muito baixo
+            pd->parent[i][j].x = -1; // Sem predecessor
             pd->parent[i][j].y = -1;
         }
     }
@@ -120,50 +118,53 @@ ProgramacaoDinamica* inicializarDp(Caverna *caverna) {
     return pd;
 }
 
-int max(int a, int b) {
-    return (a > b) ? a : b;
+// Liberar estrutura de programação dinâmica
+void liberarDp(ProgramacaoDinamica *pd, int linhas) {
+    liberarMatriz(pd->dp, linhas);
+    for (int i = 0; i < linhas; i++) {
+        free(pd->parent[i]);
+    }
+    free(pd->parent);
+    free(pd);
 }
 
-// Algoritmo principal
+// Resolver a caverna utilizando programação dinâmica
 void resolverCaverna(Caverna *caverna, const char* arquivo_saida) {
     ProgramacaoDinamica *pd = inicializarDp(caverna);
 
-    // Inicializar ponto inicial
-    pd->dp[caverna->inicio.x][caverna->inicio.y] = caverna->vida;
-    printf("Ponto inicial: (%d, %d), vida: %d\n", caverna->inicio.x, caverna->inicio.y, pd->dp[caverna->inicio.x][caverna->inicio.y]);
+    // Configurar o ponto inicial
+    int x_inicial = caverna->inicio.x;
+    int y_inicial = caverna->inicio.y;
+    pd->dp[x_inicial][y_inicial] = caverna->vida;
 
-    // Preenchimento da matriz de DP
-    for (int i = 0; i < caverna->linhas; i++) {
-        for (int j = 0; j < caverna->colunas; j++) {
-            
-            if (i == caverna->inicio.x && j == caverna->inicio.y) continue;
+    // Preencher a matriz DP
+    for (int i = x_inicial; i >= 0; i--) {
+        for (int j = y_inicial; j >= 0; j--) {
+            if (pd->dp[i][j] <= 0) continue; // Ignorar células inatingíveis
 
-            int de_cima = (i > 0 && pd->dp[i-1][j] == INT_MIN) ? pd->dp[i-1][j] + caverna->valores[i][j] : INT_MIN;
-            int da_esquerda = (j > 0 && pd->dp[i][j-1] == INT_MIN) ? pd->dp[i][j-1] + caverna->valores[i][j] : INT_MIN;
-            printf("Atualizando dp[%d][%d]: de_cima=%d, da_esquerda=%d\n", i, j, pd->dp[i][j-1], da_esquerda);
-
-            // Selecionar o melhor valor
-            pd->dp[i][j] = max(de_cima, da_esquerda);
-
-            // Atualizar o parent apenas se o valor for maior que INT_MIN
-            if (pd->dp[i][j] != INT_MIN) {
-                if (de_cima >= da_esquerda) {
-                    pd->parent[i][j].x = i-1;
-                    pd->parent[i][j].y = j;
-                } else {
-                    pd->parent[i][j].x = i;
-                    pd->parent[i][j].y = j-1;
+            // Movimento para cima
+            if (i > 0) {
+                int novo_valor = pd->dp[i][j] + caverna->valores[i - 1][j];
+                if (novo_valor > pd->dp[i - 1][j]) {
+                    pd->dp[i - 1][j] = novo_valor;
+                    pd->parent[i - 1][j].x = i;
+                    pd->parent[i - 1][j].y = j;
                 }
             }
 
-            // Se a vida cair abaixo de 0, tornar a célula inalcançável
-            if (pd->dp[i][j] <= 0) {
-                pd->dp[i][j] = INT_MIN;
+            // Movimento para a esquerda
+            if (j > 0) {
+                int novo_valor = pd->dp[i][j] + caverna->valores[i][j - 1];
+                if (novo_valor > pd->dp[i][j - 1]) {
+                    pd->dp[i][j - 1] = novo_valor;
+                    pd->parent[i][j - 1].x = i;
+                    pd->parent[i][j - 1].y = j;
+                }
             }
         }
     }
 
-    // Imprimir matrizes para debug
+        // Imprimir matrizes para debug
     printf("Matriz dp:\n");
     for (int i = 0; i < caverna->linhas; i++) {
         for (int j = 0; j < caverna->colunas; j++) {
@@ -180,28 +181,37 @@ void resolverCaverna(Caverna *caverna, const char* arquivo_saida) {
         printf("\n");
     }
 
-    // Verificar se é possível alcançar o destino
-    if (pd->dp[caverna->fim.x][caverna->fim.y] <= 0) {
-        FILE *saida = fopen(arquivo_saida, "w");
-        fprintf(saida, "impossível\n");
-        fclose(saida);
+    // Reconstruir o caminho
+    FILE *saida = fopen(arquivo_saida, "w");
+    if (!saida) {
+        printf("Erro ao abrir arquivo de saída!\n");
+        liberarDp(pd, caverna->linhas);
         return;
     }
 
-    // Reconstruir o caminho
-    Coordenada atual = caverna->fim;
-    Coordenada caminho[1000]; // Suporte para um caminho grande
-    int passos = 0;
+    int x = caverna->fim.x;
+    int y = caverna->fim.y;
 
-    while (atual.x != -1 && atual.y != -1) {
-        caminho[passos++] = atual;
-        atual = pd->parent[atual.x][atual.y];
+    if (pd->dp[x][y] <= 0) {
+        fprintf(saida, "impossível\n");
+    } else {
+        Coordenada caminho[caverna->linhas * caverna->colunas];
+        int passos = 0;
+
+        while (x != -1 && y != -1) {
+            caminho[passos].x = x;
+            caminho[passos].y = y;
+            passos++;
+            Coordenada anterior = pd->parent[x][y];
+            x = anterior.x;
+            y = anterior.y;
+        }
+
+        for (int i = passos - 1; i >= 0; i--) {
+            fprintf(saida, "%d %d\n", caminho[i].x, caminho[i].y);
+        }
     }
 
-    // Gravar o caminho no arquivo
-    FILE *saida = fopen(arquivo_saida, "w");
-    for (int i = passos - 1; i >= 0; i--) {
-        fprintf(saida, "%d %d\n", caminho[i].x, caminho[i].y);
-    }
     fclose(saida);
+    liberarDp(pd, caverna->linhas);
 }
