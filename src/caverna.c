@@ -185,7 +185,7 @@ void resolverCaverna(Caverna *caverna, const char* arquivo_saida) {
             x = anterior.x;
             y = anterior.y;
         }
-
+        
         // Escrever os passos no arquivo
         for (int i = passos - 1; i >= 0; i--) {
             fprintf(saida, "%d %d\n", caminho[i].x, caminho[i].y);

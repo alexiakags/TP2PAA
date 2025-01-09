@@ -1,8 +1,10 @@
 #include "../include/caverna.h"
+#include "../include/saidaArquivo.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#define MAX_EXECUCOES 1000
 
 // Função para gerar um valor aleatório entre dois limites
 int gerarValor(int min, int max) {
@@ -58,6 +60,14 @@ int exibirMenu() {
 }
 
 int main() {
+
+    int qtdExecucoes = 0;
+    int execucoes_count = 0;
+    int execucoes[MAX_EXECUCOES][2];
+    int qtdMovimentos = 0;
+
+    const char *nome_arquivo_saida = "saida.txt";
+
     srand(time(NULL)); // Inicializa o gerador de números aleatórios
 
     Caverna *caverna = NULL;
@@ -115,11 +125,21 @@ int main() {
         }
 
         if (caverna) {
+            clock_t start_time = clock();
             resolverCaverna(caverna, "output/resultado.txt");
+            clock_t end_time = clock();
+            double tempo_execucao = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+            qtdExecucoes++;
+            if (execucoes_count < MAX_EXECUCOES) {
+                        execucoes[execucoes_count][0] = caverna->colunas * caverna->linhas;
+                        execucoes[execucoes_count][1] = (int)(tempo_execucao * 1000); 
+                        execucoes_count++;
+            }
             liberarCaverna(caverna);
             caverna = NULL;
         }
     }
-
+    
+    registrarExecucoes(nome_arquivo_saida, execucoes_count, execucoes);
     return 0;
 }
