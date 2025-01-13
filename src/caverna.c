@@ -84,6 +84,8 @@ void imprimirCaverna(Caverna *caverna) {
     printf("Posicao Inicial: (%d, %d)\n", caverna->inicio.x, caverna->inicio.y);
     printf("Posicao Final: (%d, %d)\n", caverna->fim.x, caverna->fim.y);
 
+    printf("\n");
+    printf("Estrutura da caverna:\n");
     for (int i = 0; i < caverna->linhas; i++) {
         for (int j = 0; j < caverna->colunas; j++) {
             printf("%d ", caverna->valores[i][j]);

@@ -49,7 +49,6 @@ int main() {
             caverna = carregarArquivo(caminho_arquivo);
             printf("__________________________________________________________\n");
             printf("\n");
-            printf("Estrutura da caverna:\n");
             imprimirCaverna(caverna);
         } else if (opcao == 2) {
             // Opção de resolver uma caverna de um arquivo
@@ -64,7 +63,6 @@ int main() {
             if (caverna) {
                 printf("__________________________________________________________\n");
                 printf("\n");
-                printf("Estrutura da caverna:\n");
                 imprimirCaverna(caverna);
             } else {
                 printf("Erro ao carregar o arquivo!\n");
