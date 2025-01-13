@@ -230,11 +230,15 @@ void gerarCaverna(const char* caminho_arquivo, int linhas, int colunas, int vida
 
 int exibirMenu() {
     int opcao;
-    printf("=== Menu Principal ===\n");
+    printf("__________________________________________________________\n");
+    printf("                      Menu Principal                      \n");
+    printf("__________________________________________________________\n");
+    printf("\n");
     printf("1. Gerar caverna\n");
     printf("2. Resolver caverna de um arquivo\n");
     printf("3. Sair\n");
-    printf("Escolha uma opção: ");
+    printf("__________________________________________________________\n");
+    printf("Escolha uma opcao: ");
     scanf("%d", &opcao);
     return opcao;
 }
