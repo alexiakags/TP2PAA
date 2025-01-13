@@ -209,9 +209,9 @@ void gerarCaverna(const char* caminho_arquivo, int linhas, int colunas, int vida
     for (int i = 0; i < linhas; i++) {
         for (int j = 0; j < colunas; j++) {
             if (i == 0 && j == 0) {
-                fprintf(arquivo, "I "); // Posição inicial
+                fprintf(arquivo, "F ");
             } else if (i == linhas - 1 && j == colunas - 1) {
-                fprintf(arquivo, "F "); // Posição final
+                fprintf(arquivo, "I ");
             } else {
                 int chance = gerarValor(1, 100);
                 if (chance <= densidadeMonstros) {
