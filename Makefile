@@ -4,3 +4,5 @@ all:
 run:
 	programa 
 
+plot:
+	python output/plot.py
