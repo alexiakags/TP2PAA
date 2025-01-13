@@ -49,7 +49,6 @@ int main() {
             caverna = carregarArquivo(caminho_arquivo);
             printf("__________________________________________________________\n");
             printf("\n");
-            imprimirCaverna(caverna);
         } else if (opcao == 2) {
             // Opção de resolver uma caverna de um arquivo
             char nome_arquivo[100];
@@ -63,7 +62,6 @@ int main() {
             if (caverna) {
                 printf("__________________________________________________________\n");
                 printf("\n");
-                imprimirCaverna(caverna);
             } else {
                 printf("Erro ao carregar o arquivo!\n");
             }
@@ -78,6 +76,8 @@ int main() {
         if (caverna) {
             clock_t start_time = clock();
             resolverCaverna(caverna, "output/resultado.txt");
+            printf("\n");
+            printf("O resultado pode ser encontrando no diretorio: output/resultado.txt\n");
             clock_t end_time = clock();
             double tempo_execucao = (double)(end_time - start_time) / CLOCKS_PER_SEC;
             qtdExecucoes++;

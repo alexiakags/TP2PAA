@@ -79,6 +79,8 @@ Caverna* carregarArquivo(const char* caminho_arquivo) {
     return caverna;
 }
 
+
+
 void imprimirCaverna(Caverna *caverna) {
     printf("Linhas: %d, Colunas: %d, Vida Inicial: %d\n", caverna->linhas, caverna->colunas, caverna->vida);
     printf("Posicao Inicial: (%d, %d)\n", caverna->inicio.x, caverna->inicio.y);
@@ -88,7 +90,18 @@ void imprimirCaverna(Caverna *caverna) {
     printf("Estrutura da caverna:\n");
     for (int i = 0; i < caverna->linhas; i++) {
         for (int j = 0; j < caverna->colunas; j++) {
-            printf("%d ", caverna->valores[i][j]);
+            if (caverna->inicio.x == i & caverna->inicio.y == j)
+            {
+                printf("I ");
+            }
+            else if (caverna->fim.x == i & caverna->fim.y == j)
+            {
+                printf("F ");
+            }
+            else
+            {
+                printf("%d ", caverna->valores[i][j]);
+            }
         }
         printf("\n");
     }
@@ -96,6 +109,7 @@ void imprimirCaverna(Caverna *caverna) {
 
 
 ProgramacaoDinamica* inicializarDp(Caverna *caverna) {
+    imprimirCaverna(caverna);
     ProgramacaoDinamica *pd = (ProgramacaoDinamica*)malloc(sizeof(ProgramacaoDinamica));
     pd->dp = alocarMatriz(caverna->linhas, caverna->colunas);
     pd->parent = (Coordenada**)malloc(caverna->linhas * sizeof(Coordenada*));
@@ -209,9 +223,9 @@ void gerarCaverna(const char* caminho_arquivo, int linhas, int colunas, int vida
     for (int i = 0; i < linhas; i++) {
         for (int j = 0; j < colunas; j++) {
             if (i == 0 && j == 0) {
-                fprintf(arquivo, "F ");
+                fprintf(arquivo, "I "); // Posição inicial
             } else if (i == linhas - 1 && j == colunas - 1) {
-                fprintf(arquivo, "I ");
+                fprintf(arquivo, "F "); // Posição final
             } else {
                 int chance = gerarValor(1, 100);
                 if (chance <= densidadeMonstros) {
