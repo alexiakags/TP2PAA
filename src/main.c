@@ -6,59 +6,6 @@
 #include <string.h>
 #define MAX_EXECUCOES 1000
 
-// Função para gerar um valor aleatório entre dois limites
-int gerarValor(int min, int max) {
-    return rand() % (max - min + 1) + min;
-}
-
-// Função para gerar o arquivo de entrada da caverna
-void gerarCaverna(const char* caminho_arquivo, int linhas, int colunas, int vida, int densidadeMonstros, int densidadePocoes) {
-    FILE *arquivo = fopen(caminho_arquivo, "w");
-    if (!arquivo) {
-        perror("Erro ao criar o arquivo de saída");
-        return;
-    }
-
-    // Escreve as dimensões e os pontos de vida iniciais
-    fprintf(arquivo, "%d %d %d\n", linhas, colunas, vida);
-
-    // Gera a matriz da caverna
-    for (int i = 0; i < linhas; i++) {
-        for (int j = 0; j < colunas; j++) {
-            if (i == 0 && j == 0) {
-                fprintf(arquivo, "I "); // Posição inicial
-            } else if (i == linhas - 1 && j == colunas - 1) {
-                fprintf(arquivo, "F "); // Posição final
-            } else {
-                int chance = gerarValor(1, 100);
-                if (chance <= densidadeMonstros) {
-                    fprintf(arquivo, "%d ", gerarValor(-50, -10)); // Monstro
-                } else if (chance <= densidadeMonstros + densidadePocoes) {
-                    fprintf(arquivo, "%d ", gerarValor(10, 50)); // Poção
-                } else {
-                    fprintf(arquivo, "0 "); // Espaço vazio
-                }
-            }
-        }
-        fprintf(arquivo, "\n");
-    }
-
-    fclose(arquivo);
-    printf("Arquivo gerado com sucesso: %s\n", caminho_arquivo);
-}
-
-// Função para exibir o menu e retornar a opção escolhida
-int exibirMenu() {
-    int opcao;
-    printf("=== Menu Principal ===\n");
-    printf("1. Gerar caverna\n");
-    printf("2. Resolver caverna de um arquivo\n");
-    printf("3. Sair\n");
-    printf("Escolha uma opção: ");
-    scanf("%d", &opcao);
-    return opcao;
-}
-
 int main() {
 
     int qtdExecucoes = 0;

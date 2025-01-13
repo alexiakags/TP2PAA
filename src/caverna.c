@@ -11,7 +11,6 @@ int** alocarMatriz(int linhas, int colunas) {
     return matriz;
 }
 
-// Função para liberar a matriz de valores
 void liberarMatriz(int **matriz, int linhas) {
     for (int i = 0; i < linhas; i++) {
         free(matriz[i]);
@@ -19,7 +18,6 @@ void liberarMatriz(int **matriz, int linhas) {
     free(matriz);
 }
 
-// Função para inicializar a estrutura Caverna
 Caverna* inicializarCaverna(int linhas, int colunas, int vida) {
     Caverna *caverna = (Caverna*)malloc(sizeof(Caverna));
     if (!caverna) {
@@ -39,7 +37,6 @@ Caverna* inicializarCaverna(int linhas, int colunas, int vida) {
     return caverna;
 }
 
-// Função para liberar memória da estrutura Caverna
 void liberarCaverna(Caverna *caverna) {
     liberarMatriz(caverna->valores, caverna->linhas);
     free(caverna);
@@ -56,7 +53,6 @@ Caverna* carregarArquivo(const char* caminho_arquivo) {
     int linhas, colunas, vida;
     fscanf(arquivo, "%d %d %d", &linhas, &colunas, &vida);
 
-    // Inicializar a estrutura da caverna
     Caverna *caverna = inicializarCaverna(linhas, colunas, vida);
 
     // Ler os valores da caverna
@@ -97,7 +93,6 @@ void imprimirCaverna(Caverna *caverna) {
 }
 
 
-// Inicializar estrutura de programação dinâmica
 ProgramacaoDinamica* inicializarDp(Caverna *caverna) {
     ProgramacaoDinamica *pd = (ProgramacaoDinamica*)malloc(sizeof(ProgramacaoDinamica));
     pd->dp = alocarMatriz(caverna->linhas, caverna->colunas);
@@ -106,7 +101,6 @@ ProgramacaoDinamica* inicializarDp(Caverna *caverna) {
         pd->parent[i] = (Coordenada*)malloc(caverna->colunas * sizeof(Coordenada));
     }
 
-    // Inicializar as matrizes
     for (int i = 0; i < caverna->linhas; i++) {
         for (int j = 0; j < caverna->colunas; j++) {
             pd->dp[i][j] = INT_MIN; // Valor inicial muito baixo
@@ -118,7 +112,6 @@ ProgramacaoDinamica* inicializarDp(Caverna *caverna) {
     return pd;
 }
 
-// Liberar estrutura de programação dinâmica
 void liberarDp(ProgramacaoDinamica *pd, int linhas) {
     liberarMatriz(pd->dp, linhas);
     for (int i = 0; i < linhas; i++) {
@@ -128,7 +121,6 @@ void liberarDp(ProgramacaoDinamica *pd, int linhas) {
     free(pd);
 }
 
-// Resolver a caverna utilizando programação dinâmica
 void resolverCaverna(Caverna *caverna, const char* arquivo_saida) {
     ProgramacaoDinamica *pd = inicializarDp(caverna);
 
@@ -194,4 +186,55 @@ void resolverCaverna(Caverna *caverna, const char* arquivo_saida) {
 
     fclose(saida);
     liberarDp(pd, caverna->linhas);
+}
+
+// Função para gerar um valor aleatório entre dois limites
+int gerarValor(int min, int max) {
+    return rand() % (max - min + 1) + min;
+}
+
+// Função para gerar o arquivo de entrada da caverna
+void gerarCaverna(const char* caminho_arquivo, int linhas, int colunas, int vida, int densidadeMonstros, int densidadePocoes) {
+    FILE *arquivo = fopen(caminho_arquivo, "w");
+    if (!arquivo) {
+        perror("Erro ao criar o arquivo de saída");
+        return;
+    }
+
+    fprintf(arquivo, "%d %d %d\n", linhas, colunas, vida);
+
+    // Gera a matriz da caverna
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            if (i == 0 && j == 0) {
+                fprintf(arquivo, "I "); // Posição inicial
+            } else if (i == linhas - 1 && j == colunas - 1) {
+                fprintf(arquivo, "F "); // Posição final
+            } else {
+                int chance = gerarValor(1, 100);
+                if (chance <= densidadeMonstros) {
+                    fprintf(arquivo, "%d ", gerarValor(-50, -10)); // Monstro
+                } else if (chance <= densidadeMonstros + densidadePocoes) {
+                    fprintf(arquivo, "%d ", gerarValor(10, 50)); // Poção
+                } else {
+                    fprintf(arquivo, "0 "); // Espaço vazio
+                }
+            }
+        }
+        fprintf(arquivo, "\n");
+    }
+
+    fclose(arquivo);
+    printf("Arquivo gerado com sucesso: %s\n", caminho_arquivo);
+}
+
+int exibirMenu() {
+    int opcao;
+    printf("=== Menu Principal ===\n");
+    printf("1. Gerar caverna\n");
+    printf("2. Resolver caverna de um arquivo\n");
+    printf("3. Sair\n");
+    printf("Escolha uma opção: ");
+    scanf("%d", &opcao);
+    return opcao;
 }
